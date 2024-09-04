@@ -96,6 +96,7 @@
       state: present
       name:
         - apache2
+        - memcached
         - php8.2
         - libapache2-mod-php
         - php-mysql
@@ -164,3 +165,8 @@
       name: apache2
       enabled: true
       state: restarted
+  - name: Enable memcached
+    service:
+      name: memcached
+      enabled: true
+      state: started
