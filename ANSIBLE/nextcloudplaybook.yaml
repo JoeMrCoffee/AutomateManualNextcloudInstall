@@ -1,0 +1,166 @@
+---
+- name: NextcloudDatabase
+  hosts: database
+  become: true
+  vars:
+    mysql_root_password: "secure_root_password"
+    mysql_db: "ncDB"
+    mysql_user: "NCadmin"
+    mysql_password: "my5QLnextcloud"
+    host_ip: "{{ ansible_ssh_host }}"
+  tasks:
+  - name: Making an update
+    apt:
+      update-cache: yes
+  - name: Install MariaDB
+    apt:
+      state: present
+      name:
+        - mariadb-server
+  - name: Ensure MySQL is running
+    service:
+      name: mysqld
+      state: started
+      enabled: yes
+  - name: Install Python PIP and python3-mysqldb
+    apt:
+      state: present
+      name: 
+        - python3-pip
+        - python3-mysqldb
+  - name: Create database
+    mysql_db:
+      name: "{{ mysql_db }}"
+      state: present
+  - name: Create user and grant privileges
+    mysql_user:
+      name: "{{ mysql_user }}"
+      host: "%"
+      password: "{{ mysql_password }}"
+      priv: '{{ mysql_db }}.*:All,GRANT'
+      state: present
+  - name: Change listen address
+    ansible.builtin.replace:
+      path: /etc/mysql/mariadb.conf.d/50-server.cnf
+      regexp: 'bind-address            = 127.0.0.1'
+      replace: 'bind-address 		= {{ host_ip }}'
+  - name: Ensure MySQL is restarted
+    service:
+      name: mysqld
+      state: restarted
+      enabled: yes
+      
+- name: RedisServer
+  hosts: redis
+  become: true
+  vars:
+    host_ip: "{{ ansible_ssh_host }}"
+  tasks:
+    - name: Making an update
+    apt:
+      update-cache: yes
+    - name: Install Redis
+      apt:
+        state: present
+        name: redis
+    - name: Set the host IP for Redis to listen on
+      ansible.builtin.replace:
+        path: /etc/redis/redis.conf
+        regexp: 'bind 127.0.0.1 -::1'
+        replace: 'bind {{ host_ip }} -::1'
+    - name: Disable protected mode
+      ansible.builtin.replace:
+        path: /etc/redis/redis.conf
+        regexp: 'protected-mode yes'
+        replace: 'protected-mode no'
+    - name: Restart Redis service
+      service:
+        name: redis
+        enabled: true
+        state: restarted
+          
+- name: NextcloudWebserver
+  hosts: webservers
+  become: true
+  vars:
+    nfssvr: "192.168.122.104:/media/nfsshare"
+    mountpoint: "/var/www/html"
+    permission: '0777'
+    mntoptions: 'rw,sync'
+  tasks:
+  - name: Making an update
+    apt: 
+      update-cache: yes
+  - name: Install LAP - DB separate group
+    apt:
+      state: present
+      name:
+        - apache2
+        - php8.2
+        - libapache2-mod-php
+        - php-mysql
+        - php-curl
+        - php-apcu
+        - php-bcmath
+        - php-dom
+        - php-gd
+        - php-gmp
+        - php-memcached
+        - php-redis
+        - php-zip
+        - php-ldap
+        - php-mbstring
+        - php-imagick
+        - php-intl
+        - libmagickcore-6.q16-6-extra
+        - ffmpeg
+        - nfs-common
+        - nfs4-acl-tools
+        - unzip
+  - name: Increase memory limit
+    ansible.builtin.replace:
+      path: /etc/php/8.2/apache2/php.ini
+      regexp: 'memory_limit = 128M'
+      replace: 'memory_limit = 512M'
+  - name: Increase max upload file size
+    ansible.builtin.replace:
+      path: /etc/php/8.2/apache2/php.ini
+      regexp: 'upload_max_filesize = 2M'
+      replace: 'upload_max_filesize = 512M'
+  - name: Increase max post size
+    ansible.builtin.replace:
+      path: /etc/php/8.2/apache2/php.ini
+      regexp: 'post_max_size = 8M'
+      replace: 'post_max_size = 512M'
+  - name: Turn off output buffering
+    ansible.builtin.replace:
+      path: /etc/php/8.2/apache2/php.ini
+      regexp: 'output_buffering = 4096'
+      replace: 'output_buffering = off'
+  - name: Adjust opcache
+    ansible.builtin.replace:
+      path: /etc/php/8.2/apache2/php.ini
+      regexp: ';opcache.interned_strings_buffer=8'
+      replace: 'opcache.interned_strings_buffer=32'
+  - name: Strengthen Apache 
+    ansible.builtin.replace:
+      path: /etc/apache2/apache2.conf
+      regexp: 'Options Indexes FollowSymLinks'
+      replace: 'Options FollowSymLinks'      
+  - name: Strengthen Apache 
+    ansible.builtin.replace:
+      path: /etc/apache2/apache2.conf
+      regexp: 'AllowOverride None'
+      replace: 'AllowOverride All'
+  - name: mount network share
+    ansible.posix.mount:
+      src: "{{ nfssvr }}"
+      path: "{{ mountpoint }}"
+      fstype: nfs
+      opts: "{{ mntoptions }}"
+      state: mounted
+  - name: Restart apache2 service
+    service:
+      name: apache2
+      enabled: true
+      state: restarted

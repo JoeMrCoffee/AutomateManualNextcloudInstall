@@ -1,0 +1,29 @@
+NFS install
+
+### packages: 
+nfs-kernel-server
+nfs4-acl-tools
+
+### create directory
+mkdir /media/nfsshare
+
+
+### Enter /etc/exports
+Add the paramters for the share:
+/media/nfsshare 192.168.122.0/24(rw,sync,no_subtree_sync, no_root_squash)
+
+
+### Lanch the share
+sudo exportfs -arv
+
+
+### Other checks
+May need to adjust the /etc/hosts.allow file 
+
+
+### Mounting
+Be sure to put the whole path - so exactly what is written in the /etc/exports file
+EX:
+sudo mount -t nfs 192.168.122.104:/media/nfsshare NFStest
+
+*NOTE* adjust the IP addresses accordingly.
