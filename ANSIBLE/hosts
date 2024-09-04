@@ -1,0 +1,24 @@
+# Sample hosts file for the Ansible Playbook to run from.
+[webservers]
+192.168.122.101
+192.168.122.102
+
+[webservers:vars]
+ansible_user=joe
+ansible_password=debian
+
+
+[database]
+192.168.122.103
+
+[database:vars]
+ansible_user=joe
+ansible_password=debian
+
+
+[redis]
+192.168.122.104
+
+[redis:vars]
+ansible_user=joe
+ansible_password=debian
