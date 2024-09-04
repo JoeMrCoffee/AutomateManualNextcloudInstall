@@ -2,7 +2,6 @@
 #this script must be run as root (sudo)
 #Install the latest version of Nextcloud with Maria DB and Redis on Debian / Ubuntu systems
 #to install Redis, memcached please also run the postInstallNextcloud.sh with configModify.py in the same directory.
-#This script and the accompanying postInstallNextcloud.sh were tested with Debian 12 Buster
 #Note that the versions of MariaDB and PHP may need to be upgraded / downgraded in the script depending on the version of Nextcloud being installed.
 #NOTE: This version is for Ubuntu 22.04
 echo "This script will help install the necessary packages and files for a minimal Nextcloud install on Debian 12 systems. Includes Apache, Redis, MariaDB, and the latest Nextcloud version.\n NOTE: if using Debian 12 please exit the script and change the PHP version to 8.2 on line 6 of the script."
