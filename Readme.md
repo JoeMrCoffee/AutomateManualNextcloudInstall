@@ -29,3 +29,9 @@ Assuming the connection succeeds, the playbook will install all the packages nee
 The Anisble playbook does NOT download the Nextcloud software. That needs to be done manually, as well as adjust the config.php file to connect the Redis server. I think that is reasonable, however, because with the NFS mount it is only a one-time job, and afterwards if the playbook is ever re-run - i.e. to add a new web server or replace a failed system - one wouldn't want to re-download the software. Ansible is pretty neat in that it can be used to run and re-run the updates, and will just check that the changes are in place - if so it leaves the systems alone. This feature makes it ideal for multiple system deployments just to ensure each host is properly configured.
 
 Comments welcome, hope this is helpful.
+
+#### Addtiional reference
+Nextcloud documentation is pretty helpful, the scripts are just perhaps slightly more up-to-date in terms of the versioning of some of the packages.
+https://docs.nextcloud.com/server/latest/admin_manual/installation/example_ubuntu.html
+https://docs.nextcloud.com/server/latest/admin_manual/installation/example_centos.html
+
