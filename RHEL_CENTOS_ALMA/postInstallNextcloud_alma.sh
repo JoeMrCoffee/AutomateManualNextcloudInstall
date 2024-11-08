@@ -25,6 +25,9 @@ if [[ $redischk == "PONG" ]]; then
 else 
 	echo "Redis check failed, could be a timing issue. Please check manually: redis-cli ping";
 fi
+sudo sed -i 's/php_value\[session.save_handler\] = files/php_value\[session.save_handler\] = redis/' /etc/php-fpm.d/www.conf
+sudo sed -i 's%php_value\[session.save_path\]    = /var/lib/php/session%php_value\[session.save_path\]    = tcp://localhost:6379%' /etc/php-fpm.d/www.conf
+sudo systemctl restart php-fpm
 sudo systemctl start httpd
 sudo -u apache php /var/www/html/occ db:add-missing-indices
 echo "************ Setup complete. Please re-login and enjoy Nextcloud! 
