@@ -10,7 +10,7 @@ mkdir /media/nfsshare
 
 ### Enter /etc/exports
 Add the paramters for the share:
-/media/nfsshare 192.168.122.0/24(rw,sync,no_subtree_sync, no_root_squash)
+/media/nfsshare 192.168.122.0/24(rw,sync,no_subtree_check,no_root_squash)
 
 
 ### Lanch the share
