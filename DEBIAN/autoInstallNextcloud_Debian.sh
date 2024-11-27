@@ -26,6 +26,7 @@ sudo sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 512M/' /etc/php/8.
 sudo sed -i 's/post_max_size = 8M/post_max_size = 512M/' /etc/php/8.2/apache2/php.ini
 sudo sed -i 's/output_buffering = 4096/output_buffering = off/' /etc/php/8.2/apache2/php.ini
 sudo sed -i 's/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=32/' /etc/php/8.2/apache2/php.ini
+sudo sed -i 's/expose_php = on/expose_php = off/' /etc/php/8.2/apache2/php.ini
 echo "apc.enable_cli = 1" | sudo tee --append /etc/php/8.2/apache2/php.ini
 echo "apc.enable_cli = 1" | sudo tee --append /etc/php/8.2/mods-available/apcu.ini
 
