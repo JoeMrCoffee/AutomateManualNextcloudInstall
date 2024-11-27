@@ -143,6 +143,11 @@
       path: /etc/php/8.2/apache2/php.ini
       regexp: ';opcache.interned_strings_buffer=8'
       replace: 'opcache.interned_strings_buffer=32'
+  - name: Disable expose PHP
+    ansible.builtin.replace:
+      path: /etc/php/8.2/apache2/php.ini
+      regexp: 'expose_php = on'
+      replace: 'expose_php = off'
   - name: Strengthen Apache 
     ansible.builtin.replace:
       path: /etc/apache2/apache2.conf
