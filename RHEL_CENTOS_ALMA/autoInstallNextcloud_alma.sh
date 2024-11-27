@@ -33,6 +33,7 @@ sudo sed -i 's/memory_limit = 128M/memory_limit = 2048M/' /etc/php.ini
 sudo sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 2048M/' /etc/php.ini
 sudo sed -i 's/post_max_size = 8M/post_max_size = 2048M/' /etc/php.ini
 sudo sed -i 's/output_buffering = 4096/output_buffering = off/' /etc/php.ini
+sudo sed -i 's/expose_php = on/expose_php = off/' /etc/php.ini
 sudo sed -i 's/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=32/' /etc/php.d/10-opcache.ini
 sudo echo "apc.enable_cli=1" | sudo tee -a /etc/php.ini
 
