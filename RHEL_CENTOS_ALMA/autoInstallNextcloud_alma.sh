@@ -36,6 +36,8 @@ sudo sed -i 's/output_buffering = 4096/output_buffering = off/' /etc/php.ini
 sudo sed -i 's/expose_php = on/expose_php = off/' /etc/php.ini
 sudo sed -i 's/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=32/' /etc/php.d/10-opcache.ini
 sudo echo "apc.enable_cli=1" | sudo tee -a /etc/php.ini
+echo "ServerTokens Prod" | sudo tee --append /etc/httpd/httpd.conf
+echo "ServerSignature Off" | sudo tee --append /etc/httpd/httpd.conf
 
 #Adjust SElinux permissions
 sudo semanage fcontext -a -t httpd_sys_rw_content_t '/var/www/html(/.*)?'
