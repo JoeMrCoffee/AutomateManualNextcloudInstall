@@ -29,6 +29,8 @@ sudo sed -i 's/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffe
 sudo sed -i 's/expose_php = on/expose_php = off/' /etc/php/8.2/apache2/php.ini
 echo "apc.enable_cli = 1" | sudo tee --append /etc/php/8.2/apache2/php.ini
 echo "apc.enable_cli = 1" | sudo tee --append /etc/php/8.2/mods-available/apcu.ini
+echo "ServerTokens Prod" | sudo tee --append /etc/apache2/apache2.conf
+echo "ServerSignature Off" | sudo tee --append /etc/apache2/apache2.conf
 
 
 sudo apt install -y mariadb-server
