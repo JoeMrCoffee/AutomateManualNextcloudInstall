@@ -54,6 +54,9 @@ sitemodify = """
 		Require all granted
 		AllowOverride All
 		Options FollowSymLinks MultiViews
+  		<IfModule mod_headers.c>
+			Header always set Strict-Transport-Security "max-age=15552000; includeSubDomains"
+		</IfModule>
 		<IfModule mod_dav.c>
 			Dav off
 		</IfModule>
