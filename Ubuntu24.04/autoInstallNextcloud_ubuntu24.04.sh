@@ -18,9 +18,9 @@ sudo apt install -y libmagickcore-6.q16-6-extra
 sudo apt install -y ffmpeg
 sudo apt install -y nfs-common
 sudo apt install -y unzip
-sudo sed -i 's/memory_limit = 512M/memory_limit = 1024M/' /etc/php/8.3/apache2/php.ini
-sudo sed -i 's/upload_max_filesize = 512M/upload_max_filesize = 2048M/' /etc/php/8.3/apache2/php.ini
-sudo sed -i 's/post_max_size = 512M/post_max_size = 2048M/' /etc/php/8.3/apache2/php.ini
+sudo sed -i 's/memory_limit = 128M/memory_limit = 2048M/' /etc/php/8.3/apache2/php.ini
+sudo sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 2048M/' /etc/php/8.3/apache2/php.ini
+sudo sed -i 's/post_max_size = 8M/post_max_size = 2048M/' /etc/php/8.3/apache2/php.ini
 sudo sed -i 's/output_buffering = 4096/output_buffering = off/' /etc/php/8.3/apache2/php.ini
 sudo sed -i 's/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=32/' /etc/php/8.3/apache2/php.ini
 sudo sed -i 's/expose_php = on/expose_php = off/' /etc/php/8.3/apache2/php.ini
@@ -29,7 +29,7 @@ echo "apc.enable_cli = 1" | sudo tee --append /etc/php/8.3/mods-available/apcu.i
 echo "ServerTokens Prod" | sudo tee --append /etc/apache2/apache2.conf
 echo "ServerSignature Off" | sudo tee --append /etc/apache2/apache2.conf
 
-
+#MariaDB install
 sudo apt install -y mariadb-server
 sudo mysql_secure_installation
 sudo systemctl restart mariadb
