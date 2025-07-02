@@ -1,4 +1,5 @@
 ---
+# Database configuration
 - name: NextcloudDatabase
   hosts: database
   become: true
@@ -49,16 +50,17 @@
       name: mysqld
       state: restarted
       enabled: yes
-      
+
+# Redis server bring up      
 - name: RedisServer
   hosts: redis
   become: true
   vars:
-    host_ip: "{{ ansible_ssh_host }}"
+    redis_host_ip: "{{ ansible_ssh_host }}"
   tasks:
     - name: Making an update
-    apt:
-      update-cache: yes
+      apt:
+        update-cache: yes
     - name: Install Redis
       apt:
         state: present
@@ -67,7 +69,7 @@
       ansible.builtin.replace:
         path: /etc/redis/redis.conf
         regexp: 'bind 127.0.0.1 -::1'
-        replace: 'bind {{ host_ip }} -::1'
+        replace: 'bind {{ redis_host_ip }} -::1'
     - name: Disable protected mode
       ansible.builtin.replace:
         path: /etc/redis/redis.conf
@@ -78,12 +80,14 @@
         name: redis
         enabled: true
         state: restarted
-          
+
+#Nextcloud web server bring up          
 - name: NextcloudWebserver
   hosts: webservers
   become: true
-  vars:
-    nfssvr: "192.168.122.104:/media/nfsshare"
+  vars: #the redis and nfssvr addresses need to be set appropriately
+    redissvr: "192.168.122.103"
+    nfssvr: "192.168.122.249:/media/nfsshare"
     mountpoint: "/var/www/html"
     permission: '0777'
     mntoptions: 'rw,sync'
@@ -97,8 +101,8 @@
       name:
         - apache2
         - memcached
-        - php8.2
-        - libapache2-mod-php
+        - php8.3
+        - php8.3-fpm
         - php-mysql
         - php-curl
         - php-apcu
@@ -113,6 +117,7 @@
         - php-mbstring
         - php-imagick
         - php-intl
+        - php-bz2
         - libmagickcore-6.q16-6-extra
         - ffmpeg
         - nfs-common
@@ -120,34 +125,44 @@
         - unzip
   - name: Increase memory limit
     ansible.builtin.replace:
-      path: /etc/php/8.2/apache2/php.ini
+      path: /etc/php/8.3/fpm/php.ini
       regexp: 'memory_limit = 128M'
-      replace: 'memory_limit = 512M'
+      replace: 'memory_limit = 4096M'
   - name: Increase max upload file size
     ansible.builtin.replace:
-      path: /etc/php/8.2/apache2/php.ini
+      path: /etc/php/8.3/fpm/php.ini
       regexp: 'upload_max_filesize = 2M'
-      replace: 'upload_max_filesize = 512M'
+      replace: 'upload_max_filesize = 2048M'
   - name: Increase max post size
     ansible.builtin.replace:
-      path: /etc/php/8.2/apache2/php.ini
+      path: /etc/php/8.3/fpm/php.ini
       regexp: 'post_max_size = 8M'
       replace: 'post_max_size = 512M'
   - name: Turn off output buffering
     ansible.builtin.replace:
-      path: /etc/php/8.2/apache2/php.ini
+      path: /etc/php/8.3/fpm/php.ini
       regexp: 'output_buffering = 4096'
       replace: 'output_buffering = off'
   - name: Adjust opcache
     ansible.builtin.replace:
-      path: /etc/php/8.2/apache2/php.ini
+      path: /etc/php/8.3/fpm/php.ini
       regexp: ';opcache.interned_strings_buffer=8'
       replace: 'opcache.interned_strings_buffer=32'
-  - name: Disable expose PHP
+  - name: Set session save handler to redis
     ansible.builtin.replace:
-      path: /etc/php/8.2/apache2/php.ini
-      regexp: 'expose_php = on'
-      replace: 'expose_php = off'
+      path: /etc/php/8.3/fpm/php.ini
+      regexp: 'session.save_handler = files'
+      replace: 'session.save_handler = redis'
+  - name: Set session save path to redis
+    ansible.builtin.replace:
+      path: /etc/php/8.3/fpm/php.ini
+      regexp: ';     session.save_path = "N;/path"'
+      replace: 'session.save_path = "tcp://{{ redissvr }}:6379"'
+  - name: Restart php8.3-fpm service
+    service:
+      name: php8.3-fpm
+      enabled: true
+      state: restarted
   - name: Strengthen Apache 
     ansible.builtin.replace:
       path: /etc/apache2/apache2.conf
@@ -158,6 +173,36 @@
       path: /etc/apache2/apache2.conf
       regexp: 'AllowOverride None'
       replace: 'AllowOverride All'
+  - name: Apache Modules
+    community.general.apache2_module:
+      state: present
+      name: rewrite
+  - name: Apache Modules
+    community.general.apache2_module:
+      state: present
+      name: headers
+  - name: Apache Modules
+    community.general.apache2_module:
+      state: present
+      name: env
+  - name: Apache Modules
+    community.general.apache2_module:
+      state: present
+      name: dir
+  - name: Apache Modules
+    community.general.apache2_module:
+      state: present
+      name: mime
+  - name: Apache Modules
+    community.general.apache2_module:
+      state: present
+      name: proxy_fcgi
+  - name: Apache Modules
+    community.general.apache2_module:
+      state: present
+      name: setenvif
+  - name: php8.3-fpm module config enablement
+    ansible.builtin.shell: a2enconf php8.3-fpm
   - name: mount network share
     ansible.posix.mount:
       src: "{{ nfssvr }}"
@@ -165,13 +210,47 @@
       fstype: nfs
       opts: "{{ mntoptions }}"
       state: mounted
-  - name: Restart apache2 service
-    service:
-      name: apache2
-      enabled: true
-      state: restarted
   - name: Enable memcached
     service:
       name: memcached
       enabled: true
       state: started
+  - name: Create a virtual host file
+    copy:
+      dest: /etc/apache2/sites-available/nextcloud.conf
+      content: |
+        <VirtualHost *:80>
+          ServerAdmin webmaster@localhost
+          DocumentRoot /var/www/html
+          <Directory /var/www/html>
+            Require all granted
+            AllowOverride All
+            Options FollowSymLinks MultiViews
+            <IfModule mod_headers.c>
+              Header always set Strict-Transport-Security "max-age=15552000; includeSubDomains"
+            </IfModule>
+            <IfModule mod_dav.c>
+              Dav off
+            </IfModule>
+          </Directory>
+          ErrorLog ${APACHE_LOG_DIR}/error.log
+          CustomLog ${APACHE_LOG_DIR}/access.log combined
+          Timeout 1800
+        </VirtualHost>
+  - name: Create a symlink to sites-enabled
+    ansible.builtin.file:
+      src: /etc/apache2/sites-available/nextcloud.conf
+      dest: /etc/apache2/sites-enabled/nextcloud.conf
+      owner: root
+      group: root
+      state: link
+  - name: Remove the default flie
+    ansible.builtin.file:
+      path: /etc/apache2/sites-enabled/000-default.conf
+      state: absent
+  - name: Restart apache2 service
+    service:
+      name: apache2
+      enabled: true
+      state: restarted
+
