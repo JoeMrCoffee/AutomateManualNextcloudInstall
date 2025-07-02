@@ -21,9 +21,11 @@ Please note that the versioning of PHP for all of the distros might differ as th
 #### Ansible Playbook
 The Ansible Playbook is more of an experiment. Ansible can be really useful if there are a lot of different hosts, which is why the install breaks out the web server, database and Redis groups. For this reason as well, I include some notes for getting NFS installed on Debian 12 and then the Ansible script will mount the NFS share as the web server root directory. In production, I could see the Ansible Playbook being using if there are a few web servers, a single database and shared Redis host. For larger deployments - say >1500 users of Nextcloud - it may make more sense to have something like clustered Redis and Database. For organizations with those aspirations, suggest the Nextcloud Enterprise version https://nextcloud.com/enterprise/.
 
+NOTE: Need to adjust the hosts file with the appropriate IP or URLs, and also need to adjust the redis and NFS hosts variables in the web server play in the nextcloudplaybook.yaml file. 
+
 To run the Ansible Playbook, an Ansible host is required, and the various servers (hosts) need to be added in the host under the Ansible main directory (by default /etc/ansible with Fedora). The Ansible host needs the SSH keys set in its known_hosts - the easiest way to set this up is to first SSH into each host once just to get the key pair. Afterwards the playbook can be run with the below command:
 
-ansible-playbook NCplaybook.yaml --user=(ansible user for the hosts) --ask-become-pass
+ansible-playbook nextcloudplaybook.yaml --user=(ansible user for the hosts) --ask-become-pass
 
 Assuming the connection succeeds, the playbook will install all the packages needed per role - database, Redis, web server - and if there is any error it will get returned and stop the play. Assuming the user is created with sudo rights on each host, it should provision everything. 
 
