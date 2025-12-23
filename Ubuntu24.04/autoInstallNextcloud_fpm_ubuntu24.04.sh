@@ -5,7 +5,7 @@
 echo "This script will help install the necessary packages and files for a minimal Nextcloud install on Debian 12 systems. Includes Apache, Redis, MariaDB, and the latest Nextcloud version. NOTE: if using Ubuntu LTS please exit the script and change the PHP version to 8.1 on line 6 of the script."
 sudo apt update
 sudo apt install -y apache2
-sudo apt install -y memcached
+#sudo apt install -y memcached
 sudo apt install -y php8.3 
 sudo apt install -y php-mysql php-curl 
 sudo apt install -y php-apcu php-bcmath php-dom php-gd php-gmp 
@@ -45,6 +45,7 @@ sudo a2enmod dir
 sudo a2enmod mime
 sudo a2enmod proxy_fcgi setenvif
 sudo a2enconf php8.3-fpm
+sudo a2dismod php8.3
 
 #restart the services
 sudo systemctl restart php8.3-fpm
