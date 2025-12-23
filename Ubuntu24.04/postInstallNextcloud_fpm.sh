@@ -10,11 +10,9 @@ sudo cp /etc/apache2/sites-available/000-default.conf ./
 sudo python3 ./configModify.py
 sudo cp newConfig.php /var/www/html/config/config.php
 sudo cp ./001-default.conf /etc/apache2/sites-available/000-default.conf
-
 #Install Redis cache and enable caching
 sudo apt install -y redis
-sudo systemctl enable memcached
-sudo systemctl start memcached
+sudo systemctl enable redis
 redischk=$(redis-cli ping)
 if [[ $redischk == "PONG" ]]; then
 	echo "PING PONG Success! Redis Online";
@@ -27,5 +25,6 @@ sudo sed -i 's%;session.save_path = "/var/lib/php/sessions"%session.save_path = 
 sudo systemctl restart php8.3-fpm
 sudo systemctl start apache2
 sudo -u www-data php /var/www/html/occ maintenance:repair --include-expensive
+sudo -u www-data php /var/www/html/occ db:add-missing-indices
 echo "************ Setup complete. Please re-login and enjoy Nextcloud! 
 If you have any questions please reach out to your Nextcloud contact(s) or reach us at https://nextcloud.com/contact/"
