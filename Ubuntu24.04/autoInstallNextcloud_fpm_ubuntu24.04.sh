@@ -2,7 +2,7 @@
 #this script must be run as root (sudo)
 #Install the latest version of Nextcloud with Maria DB and Redis on Debian / Ubuntu systems
 #UBUNTU 24.04
-echo "This script will help install the necessary packages and files for a minimal Nextcloud install on Debian 12 systems. Includes Apache, Redis, MariaDB, and the latest Nextcloud version. NOTE: if using Ubuntu LTS please exit the script and change the PHP version to 8.1 on line 6 of the script."
+echo "This script will help install the necessary packages and files for a minimal Nextcloud install on Ubuntu 24.04 systems. Includes Apache, Redis, MariaDB, and the latest Nextcloud version. NOTE: if using Ubuntu LTS please exit the script and change the PHP version to 8.1 on line 6 of the script."
 sudo apt update
 sudo apt install -y apache2
 sudo apt install -y php8.3 
