@@ -5,18 +5,19 @@
 echo "This script will help install the necessary packages and files for a minimal Nextcloud install on Debian 12 systems. Includes Apache, Redis, MariaDB, and the latest Nextcloud version. NOTE: if using Ubuntu LTS please exit the script and change the PHP version to 8.1 on line 6 of the script."
 sudo apt update
 sudo apt install -y apache2
-#sudo apt install -y memcached
 sudo apt install -y php8.3 
 sudo apt install -y php-mysql php-curl 
 sudo apt install -y php-apcu php-bcmath php-dom php-gd php-gmp 
-sudo apt install -y php-memcached php8.3-fpm
+sudo apt install -y php8.3-fpm
 sudo apt install -y php-redis
 sudo apt install -y php-ldap
+sudo apt install -y php-smbclient
 sudo apt install -y php-zip php-mbstring
 sudo apt install -y php-imagick php-intl php-bz2
 sudo apt install -y libmagickcore-6.q16-6-extra
 sudo apt install -y ffmpeg
 sudo apt install -y nfs-common
+sudo apt install -y smbclient
 sudo apt install -y unzip
 # Update PHP default values
 # Noted that in Ubuntu 24.04 the default php.ini file appears blank
