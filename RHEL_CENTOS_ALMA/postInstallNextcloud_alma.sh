@@ -30,6 +30,6 @@ sudo sed -i 's%php_value\[session.save_path\]    = /var/lib/php/session%php_valu
 sudo systemctl restart php-fpm
 sudo systemctl start httpd
 sudo -u apache php /var/www/html/occ db:add-missing-indices
-sudo -u www-data php /var/www/html/occ maintenance:repair --include-expensive
+sudo -u apache php /var/www/html/occ maintenance:repair --include-expensive
 echo "************ Setup complete. Please re-login and enjoy Nextcloud! 
 If you have any questions please reach out to your Nextcloud contact(s) or reach us at https://nextcloud.com/contact/"
