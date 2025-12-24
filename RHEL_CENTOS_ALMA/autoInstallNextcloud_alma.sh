@@ -12,13 +12,12 @@ sudo dnf install dnf-utils https://rpms.remirepo.net/enterprise/remi-release-9.r
 sudo dnf -y update
 
 sudo dnf install -y httpd
-sudo dnf install -y memcached
 sudo dnf module install -y php:remi-8.2
 sudo dnf install -y php-mysqlnd
 sudo dnf install -y php-opcache
 sudo dnf install -y libapache2-mod-php php-curl
 sudo dnf install -y php-apcu php-bcmath php-dom php-gd php-gmp
-sudo dnf install -y php-memcached
+sudo dnf install -y php-smbclient
 sudo dnf install -y php-pecl-redis
 sudo dnf install -y php-ldap
 sudo dnf install -y php-process php-sodium
@@ -38,6 +37,11 @@ sudo sed -i 's/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffe
 sudo echo "apc.enable_cli=1" | sudo tee -a /etc/php.ini
 echo "ServerTokens Prod" | sudo tee --append /etc/httpd/httpd.conf
 echo "ServerSignature Off" | sudo tee --append /etc/httpd/httpd.conf
+
+# Sizing the workers for php-fpm
+sudo sed -i 's/pm.max_children = 50/pm.max_children = 500/' /etc/php-fpm.d/www.conf
+sudo sed -i 's/pm.start_servers = 5/pm.start_servers = 10/' /etc/php-fpm.d/www.conf
+sudo sed -i 's/pm.min_spare_servers = 5/pm.min_spare_servers = 10/' /etc/php-fpm.d/www.conf
 
 #Adjust SElinux permissions
 sudo semanage fcontext -a -t httpd_sys_rw_content_t '/var/www/html(/.*)?'
@@ -73,6 +77,10 @@ sudo mariadb -e "CREATE DATABASE IF NOT EXISTS ncDB CHARACTER SET utf8mb4 COLLAT
 sudo mariadb -e "GRANT ALL PRIVILEGES ON ncDB.* TO 'NCadmin'@'localhost';"
 sudo mariadb -e "FLUSH PRIVILEGES;"
 echo "DB criteria entered."
+
+# Back up the server conf and increase the innodb_buffer_pool_size
+sudo cp /etc/my.cnf.d/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf.bak
+echo "innodb_buffer_pool_size = 2G" | sudo tee -a /etc/my.cnf.d/mariadb-server.cnf
 
 sudo systemctl restart mariadb
 
