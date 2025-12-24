@@ -65,6 +65,8 @@ sudo mariadb -e "GRANT ALL PRIVILEGES ON ncDB.* TO 'NCadmin'@'localhost';"
 sudo mariadb -e "FLUSH PRIVILEGES;"
 echo "DB criteria entered."
 
+sudo sed -i 's/#innodb_buffer_pool_size = 8G/innodb_buffer_pool_size = 2G/' /etc/mysql/mariadb.conf.d/50-server.cnf
+
 sudo systemctl restart mariadb
 
 wget https://download.nextcloud.com/server/releases/latest.zip
