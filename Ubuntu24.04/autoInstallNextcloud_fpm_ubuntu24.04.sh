@@ -47,6 +47,8 @@ sudo a2enmod mime
 sudo a2enmod proxy_fcgi setenvif
 sudo a2enconf php8.3-fpm
 sudo a2dismod php8.3
+sudo a2dismod mpm_prefork
+sudo a2enmod mpm_event
 
 #restart the services
 sudo systemctl restart php8.3-fpm
