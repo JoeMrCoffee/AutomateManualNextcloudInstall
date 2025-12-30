@@ -1,4 +1,5 @@
 ---
+# This config is designed to work on Ubuntu 24.04 and may work with other similar distros
 # Database configuration
 - name: NextcloudDatabase
   hosts: database
@@ -45,6 +46,11 @@
       path: /etc/mysql/mariadb.conf.d/50-server.cnf
       regexp: 'bind-address            = 127.0.0.1'
       replace: 'bind-address 		= {{ host_ip }}'
+  - name: Increase innodb buffer cache
+    ansible.builtin.replace:
+      path: /etc/mysql/mariadb.conf.d/50-server.cnf
+      regexp: '#innodb_buffer_pool_size = 8G'
+      replace: 'innodb_buffer_pool_size = 2G'     
   - name: Ensure MySQL is restarted
     service:
       name: mysqld
@@ -118,10 +124,12 @@
         - php-imagick
         - php-intl
         - php-bz2
+        - php-smbclient
         - libmagickcore-6.q16-6-extra
         - ffmpeg
         - nfs-common
         - nfs4-acl-tools
+        - smbclient
         - unzip
   - name: Increase memory limit
     ansible.builtin.replace:
@@ -201,6 +209,18 @@
     community.general.apache2_module:
       state: present
       name: setenvif
+  - name: Apache Modules
+    community.general.apache2_module:
+      state: absent
+      name: php8.3
+  - name: Apache Modules
+    community.general.apache2_module:
+      state: absent
+      name: mpm_prefork
+  - name: Apache Modules
+    community.general.apache2_module:
+      state: present
+      name: mpm_event
   - name: php8.3-fpm module config enablement
     ansible.builtin.shell: a2enconf php8.3-fpm
   - name: mount network share
