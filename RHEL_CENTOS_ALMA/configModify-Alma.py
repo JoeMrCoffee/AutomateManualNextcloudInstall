@@ -22,7 +22,8 @@ configModifications="""'htaccess.RewriteBase' => '/',
   array (
     'host' => '127.0.0.1',
     'port' => 6379,
-  ),"""
+  ),
+  'maintenance_window_start' => 1,"""
 
 newOutput = ""
 
