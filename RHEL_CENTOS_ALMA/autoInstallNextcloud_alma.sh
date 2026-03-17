@@ -4,44 +4,54 @@
 #to install Redis, memcached please also run the postInstallNextcloud.sh with configModify.py in the same directory.
 #Note that the versions of MariaDB and PHP may need to be upgraded / downgraded in the script depending on the version of Nextcloud being installed.
 #NOTE: This version is for RHEL derivatives.
-echo "This script will help install the necessary packages and files for a minimal Nextcloud install on RHEL/CentOS/Fedora/Alma/Rocky Linux systems. Includes Apache, Redis, MariaDB, and the latest Nextcloud version.\n"
+# Updated for Alma Linux 10
 
 sudo dnf -y update
-sudo dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
-sudo dnf install dnf-utils https://rpms.remirepo.net/enterprise/remi-release-9.rpm -y
+sudo dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+#sudo dnf install dnf-utils https://rpms.remirepo.net/enterprise/remi-release-9.rpm -y
+#sudo dnf module install -y php:remi-8.3
 sudo dnf -y update
 
 sudo dnf install -y httpd
-sudo dnf module install -y php:remi-8.2
+sudo dnf install -y memcached
+sudo dnf install -y php
+sudo dnf install -y php-fpm
+sudo dnf install -y php-cli
 sudo dnf install -y php-mysqlnd
+sudo dnf install -y php-pgsql
 sudo dnf install -y php-opcache
-sudo dnf install -y libapache2-mod-php php-curl
-sudo dnf install -y php-apcu php-bcmath php-dom php-gd php-gmp
-sudo dnf install -y php-smbclient
+sudo dnf install -y php-curl
+sudo dnf install -y php-pecl-apcu 
+sudo dnf install -y php-bcmath 
+sudo dnf install -y php-dom 
+sudo dnf install -y php-gd 
+sudo dnf install -y php-gmp
+sudo dnf install -y php-pecl-memcached
 sudo dnf install -y php-pecl-redis
 sudo dnf install -y php-ldap
-sudo dnf install -y php-process php-sodium
-sudo dnf install -y php-zip php-mbstring
-sudo dnf install -y php-imagick php-intl php-bz2
-sudo dnf install -y libmagickcore-6.q16-6-extra
+sudo dnf install -y php-smbclient
+sudo dnf install -y php-process 
+sudo dnf isntall -y php-sodium
+sudo dnf install -y php-zip
+sudo dnf install -y php-mbstring
+sudo dnf install -y php-pecl-imagick
+sudo dnf install -y php-intl
+sudo dnf install -y php-bz2
 sudo dnf install -y ffmpeg
-sudo dnf install -y nfs-common
+sudo dnf install -y nfs-utils
+sudo dnf install -y samba-client
 sudo dnf install -y unzip
 sudo dnf install -y wget
+sudo dnf install -y valkey
 sudo sed -i 's/memory_limit = 128M/memory_limit = 2048M/' /etc/php.ini
 sudo sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 2048M/' /etc/php.ini
 sudo sed -i 's/post_max_size = 8M/post_max_size = 2048M/' /etc/php.ini
 sudo sed -i 's/output_buffering = 4096/output_buffering = off/' /etc/php.ini
-sudo sed -i 's/expose_php = on/expose_php = off/' /etc/php.ini
 sudo sed -i 's/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=32/' /etc/php.d/10-opcache.ini
 sudo echo "apc.enable_cli=1" | sudo tee -a /etc/php.ini
-echo "ServerTokens Prod" | sudo tee --append /etc/httpd/httpd.conf
-echo "ServerSignature Off" | sudo tee --append /etc/httpd/httpd.conf
+sudo sed -i 's/;apc.enable_cli/apc.enable_cli=1 ;/' /etc/php.d/40-apcu.ini
+sudo sed -i 's/expose_php = on/expose_php = off/' /etc/php.ini
 
-# Sizing the workers for php-fpm
-sudo sed -i 's/pm.max_children = 50/pm.max_children = 500/' /etc/php-fpm.d/www.conf
-sudo sed -i 's/pm.start_servers = 5/pm.start_servers = 10/' /etc/php-fpm.d/www.conf
-sudo sed -i 's/pm.min_spare_servers = 5/pm.min_spare_servers = 10/' /etc/php-fpm.d/www.conf
 
 #Adjust SElinux permissions
 sudo semanage fcontext -a -t httpd_sys_rw_content_t '/var/www/html(/.*)?'
@@ -54,7 +64,7 @@ sudo semanage fcontext -a -t httpd_sys_rw_content_t '/var/www/html/.user.ini'
 sudo restorecon -R '/var/www/html/'
 
 sudo setsebool -P httpd_can_network_connect on
-
+sudo setsebool httpd_use_nfs on
 
 #restart the services to ensure they take effect
 sudo systemctl enable httpd
@@ -77,10 +87,6 @@ sudo mariadb -e "CREATE DATABASE IF NOT EXISTS ncDB CHARACTER SET utf8mb4 COLLAT
 sudo mariadb -e "GRANT ALL PRIVILEGES ON ncDB.* TO 'NCadmin'@'localhost';"
 sudo mariadb -e "FLUSH PRIVILEGES;"
 echo "DB criteria entered."
-
-# Back up the server conf and increase the innodb_buffer_pool_size
-sudo cp /etc/my.cnf.d/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf.bak
-echo "innodb_buffer_pool_size = 2G" | sudo tee -a /etc/my.cnf.d/mariadb-server.cnf
 
 sudo systemctl restart mariadb
 
