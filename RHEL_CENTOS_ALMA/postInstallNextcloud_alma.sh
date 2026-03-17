@@ -17,7 +17,7 @@ sudo systemctl enable valkey
 sudo systemctl start valkey
 sudo systemctl enable memcached
 sudo systemctl start memcached
-redischk=$(redis-cli ping)
+redischk=$(valkey-cli ping)
 if [[ $redischk == "PONG" ]]; then
 	echo "PING PONG Success! Redis Online";
 else 
