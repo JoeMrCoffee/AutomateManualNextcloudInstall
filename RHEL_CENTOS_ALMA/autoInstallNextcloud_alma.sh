@@ -31,7 +31,7 @@ sudo dnf install -y php-pecl-redis
 sudo dnf install -y php-ldap
 sudo dnf install -y php-smbclient
 sudo dnf install -y php-process 
-sudo dnf isntall -y php-sodium
+sudo dnf install -y php-sodium
 sudo dnf install -y php-zip
 sudo dnf install -y php-mbstring
 sudo dnf install -y php-pecl-imagick
