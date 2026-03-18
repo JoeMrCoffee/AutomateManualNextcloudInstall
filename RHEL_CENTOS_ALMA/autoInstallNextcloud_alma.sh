@@ -37,7 +37,8 @@ sudo dnf install -y php-mbstring
 sudo dnf install -y php-pecl-imagick
 sudo dnf install -y php-intl
 sudo dnf install -y php-bz2
-sudo dnf install -y ffmpeg
+sudo dnf install -y ffmpeg-free
+sudo dnf install -y ImageMagick
 sudo dnf install -y nfs-utils
 sudo dnf install -y samba-client
 sudo dnf install -y unzip
