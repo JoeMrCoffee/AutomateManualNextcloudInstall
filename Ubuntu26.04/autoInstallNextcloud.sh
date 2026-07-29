@@ -23,7 +23,7 @@ sudo apt install -y nfs-common
 sudo apt install -y unzip
 
 # Update PHP default values
-sudo sed -i 's/memory_limit = 128M/memory_limit = 4096M/' /etc/php/8.5/fpm/php.ini
+sudo sed -i 's/memory_limit = 128M/memory_limit = 2048M/' /etc/php/8.5/fpm/php.ini
 sudo sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 2048M/' /etc/php/8.5/fpm/php.ini
 sudo sed -i 's/post_max_size = 8M/post_max_size = 2048M/' /etc/php/8.5/fpm/php.ini
 sudo sed -i 's/output_buffering = 4096/output_buffering = off/' /etc/php/8.5/fpm/php.ini
