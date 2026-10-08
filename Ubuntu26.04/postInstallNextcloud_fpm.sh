@@ -24,7 +24,7 @@ fi
 sudo sed -i 's%session.save_handler = files%session.save_handler = redis%' /etc/php/8.5/fpm/php.ini
 sudo sed -i 's%;session.save_path = "/var/lib/php/sessions"%session.save_path = "tcp://localhost:6379"%' /etc/php/8.5/fpm/php.ini
 
-sudo systemctl restart php8.3-fpm
+sudo systemctl restart php8.5-fpm
 sudo systemctl start apache2
 sudo -u www-data php /var/www/html/occ maintenance:repair --include-expensive
 echo "************ Setup complete. Please re-login and enjoy Nextcloud! 
